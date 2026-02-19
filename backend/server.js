@@ -16,7 +16,9 @@ connectDB();
 // Middleware
 app.use(cors({
     credentials: true,
-    origin: ['http://localhost:5173', 'http://localhost:3000','https://mern-auth-backend-sigma.vercel.app','https://mernauth-sepia.vercel.app']
+    origin: ['http://localhost:5173', 'http://localhost:3000','https://mern-auth-backend-sigma.vercel.app','https://mernauth-sepia.vercel.app'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(cookieParser());
