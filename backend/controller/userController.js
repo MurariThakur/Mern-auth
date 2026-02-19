@@ -2,7 +2,7 @@ import User from "../models/userModel.js";
 
 export const getUserDetails = async function (req, res) {
     try {   
-        const {userId} = req.body;
+        const userId = req.userId;
 
         if (!userId) {
             return res.status(400).json({ success: false, message: "User ID is required" });

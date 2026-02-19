@@ -2,9 +2,10 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import transport from "../config/nodemailer.js";
+import {EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE} from "../config/emailTemplate.js";
 
 export const register = async function (req, res) {
-  try {
+  try { 
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
@@ -117,7 +118,7 @@ export const logout = async function (req, res) {
 
 export const sendVerifyOtp = async function (req, res) {
   try {
-    const { userId } = req.body;
+    const userId = req.userId;
     const user = await User.findById(userId);
 
     if (!user) {
@@ -144,7 +145,7 @@ export const sendVerifyOtp = async function (req, res) {
       from: process.env.SENDER_MAIL,
       to: user.email,
       subject: "Verify Your Account",
-      text: `Hello ${user.name},\n\nPlease use the following OTP to verify your account: ${otp}\n\nBest regards,\nMern Auth Team`,
+      html: EMAIL_VERIFY_TEMPLATE.replace("{{email}}", user.email).replace("{{otp}}", otp),
     };
 
     await transport.sendMail(mailOptions);
@@ -157,7 +158,8 @@ export const sendVerifyOtp = async function (req, res) {
 
 export const verifyAccount = async function (req, res) {
   try {
-    const { userId, otp } = req.body;
+    const userId = req.userId;
+    const { otp } = req.body;
     const user = await User.findById(userId);
 
     if (!user) {
@@ -166,7 +168,7 @@ export const verifyAccount = async function (req, res) {
         .json({ success: false, message: "User not found" });
     }
 
-    if (!userId || !otp) {
+    if (!otp) {
       return res
         .status(400)
         .json({ success: false, message: "Please fill all the fields" });
@@ -224,7 +226,7 @@ export const sendResetPasswordOtp = async function (req, res) {
       from: process.env.SENDER_MAIL,
       to: user.email,
       subject: "Reset Your Password",
-      text: `Hello ${user.name},\n\nPlease use the following OTP to reset your password: ${otp}\n\nBest regards,\nMern Auth Team`,
+      html: PASSWORD_RESET_TEMPLATE.replace("{{email}}", user.email).replace("{{otp}}", otp),
     };
 
     await transport.sendMail(mailOptions);
